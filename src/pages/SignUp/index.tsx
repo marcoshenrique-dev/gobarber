@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import api from '../../services/api';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 
@@ -35,49 +36,56 @@ const SignUp: React.FC = () => {
    const passwordInputRef = useRef<TextInput>(null);
    const emailInputRef = useRef<TextInput>(null);
 
-   const handleSignUp = useCallback(async (data: SignUpFormData) => {
-      formRef.current?.setErrors({});
-      try {
-         const schema = Yup.object().shape({
-            email: Yup.string()
-               .required('E-mail obrigatório')
-               .email('Digite um E-mail válido'),
-            password: Yup.string().required('Senha obrigatória'),
-         });
+   const handleSignUp = useCallback(
+      async (data: SignUpFormData) => {
+         formRef.current?.setErrors({});
+         try {
+            const schema = Yup.object().shape({
+               email: Yup.string()
+                  .required('E-mail obrigatório')
+                  .email('Digite um E-mail válido'),
+               password: Yup.string().required('Senha obrigatória'),
+            });
 
-         await schema.validate(data, {
-            abortEarly: false,
-         });
-         // await signIn({
-         //    email: data.email,
-         //    password: data.password,
-         // });
+            await schema.validate(data, {
+               abortEarly: false,
+            });
+            await api.post('/users', data);
 
-         // history.push('/dashboard');
-      } catch (err) {
-         if (err instanceof Yup.ValidationError) {
-            const errors = getValidationErrors(err);
-            formRef.current?.setErrors(errors);
+            Alert.alert(
+               'Cadastro realizado com sucesso',
+               'Você já pode fazer login na aplicação',
+            );
 
-            return;
+            navigation.goBack();
+
+            // history.push('/dashboard');
+         } catch (err) {
+            if (err instanceof Yup.ValidationError) {
+               const errors = getValidationErrors(err);
+               formRef.current?.setErrors(errors);
+
+               return;
+            }
+
+            Alert.alert(
+               'Erro no cadastro',
+               'Ocorreu um erro ao fazer cadastro, cheque as credenciais',
+            );
          }
-
-         Alert.alert(
-            'Erro no cadastro',
-            'Ocorreu um erro ao fazer cadastro, cheque as credenciais',
-         );
-      }
-   }, []);
+      },
+      [navigation],
+   );
    return (
       <>
          <KeyboardAvoidingView
-           style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            enabled
+            style={{ flex: 1 }}
+           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+           enabled
          >
             <ScrollView
-              contentContainerStyle={{ flex: 1 }}
-              keyboardShouldPersistTaps="handled"
+               contentContainerStyle={{ flex: 1 }}
+               keyboardShouldPersistTaps="handled"
             >
                <Container>
                   <Image source={logoImg} />
@@ -85,47 +93,47 @@ const SignUp: React.FC = () => {
                      <Title>Crie sua conta</Title>
                   </View>
                   <Form
-                    style={{ width: '100%' }}
-                    ref={formRef}
-                    onSubmit={handleSignUp}
+                     style={{ width: '100%' }}
+                     ref={formRef}
+                     onSubmit={handleSignUp}
                   >
                      <Input
-                       autoCorrect
-                       autoCapitalize="words"
-                       name="name"
-                       icon="user"
-                       placeholder="Nome"
-                       returnKeyType="next"
-                       onSubmitEditing={() => {
+                        autoCorrect
+                        autoCapitalize="words"
+                        name="name"
+                        icon="user"
+                        placeholder="Nome"
+                        returnKeyType="next"
+                        onSubmitEditing={() => {
                            emailInputRef.current?.focus();
                         }}
                      />
                      <Input
-                        ref={emailInputRef}
-                        name="email"
-                        keyboardType="email-address"
-                        icon="mail"
-                        placeholder="E-mail"
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                        returnKeyType="next"
-                        onSubmitEditing={() => {
+                       ref={emailInputRef}
+                       name="email"
+                       keyboardType="email-address"
+                       icon="mail"
+                       placeholder="E-mail"
+                       autoCorrect={false}
+                       autoCapitalize="none"
+                       returnKeyType="next"
+                       onSubmitEditing={() => {
                            passwordInputRef.current?.focus();
                         }}
                      />
                      <Input
-                        ref={passwordInputRef}
-                       secureTextEntry
-                       name="password"
-                       icon="lock"
-                       placeholder="Senha"
-                       returnKeyType="send"
-                        onSubmitEditing={() => {
+                       ref={passwordInputRef}
+                        secureTextEntry
+                        name="password"
+                        icon="lock"
+                        placeholder="Senha"
+                        returnKeyType="send"
+                       onSubmitEditing={() => {
                            formRef.current?.submitForm();
                         }}
                      />
                      <Button
-                       onPress={() => {
+                        onPress={() => {
                            formRef.current?.submitForm();
                         }}
                      >
@@ -136,7 +144,7 @@ const SignUp: React.FC = () => {
             </ScrollView>
          </KeyboardAvoidingView>
          <BackToSignIn
-           onPress={() => {
+            onPress={() => {
                navigation.goBack();
             }}
          >

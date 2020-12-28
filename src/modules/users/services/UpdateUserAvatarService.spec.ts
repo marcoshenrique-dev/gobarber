@@ -44,7 +44,7 @@ describe('UpdateUserAvatar', () => {
       password: '123456',
     });
 
-    expect(
+    await expect(
       UpdateUserAvatar.execute({
         user_id: 'non-existing-user',
         avatarFilename: 'avatar.jpg',

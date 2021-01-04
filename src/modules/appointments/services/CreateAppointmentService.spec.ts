@@ -27,7 +27,7 @@ describe('CreateAppointment', () => {
       fakeAppointmentsRepository,
     );
 
-    const appointmentDate = new Date(2020, 4, 10, 11);
+    const appointmentDate = new Date(2021, 4, 10, 11);
 
     const appointment = await createAppointment.execute({
       date: appointmentDate,
